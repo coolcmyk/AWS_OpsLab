@@ -1,5 +1,11 @@
 ## [Early Development Phase]
 
+Deployment Link (API only): http://secureai-ops-dev-alb-1896002309.ap-southeast-1.elb.amazonaws.com
+
+<img width="3469" height="853" alt="image" src="https://github.com/user-attachments/assets/988d681a-ed49-440f-88e2-382d462e8a45" />
+
+<img width="3840" height="1972" alt="image" src="https://github.com/user-attachments/assets/23c61168-2b74-481b-b385-51073ff2256c" />
+
 SecureAI Ops Lab is a small, AWS-hosted security-operations platform that receives cloud-security findings, stores their evidence and audit trail, and produces an AI-assisted incident-triage brief. It is a portfolio project designed to demonstrate practical AWS infrastructure, security, observability, Docker, CI/CD, and responsible AI integration.
 
 The product deliberately uses a narrow, demoable workflow rather than attempting to be a full SIEM:
