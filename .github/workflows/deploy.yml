@@ -1,0 +1,50 @@
+name: CI and deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Apply Terraform after tests (requires configured GitHub environment)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-southeast-1
+  TF_WORKING_DIR: infra/environments/dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r app/requirements.txt pytest httpx && pytest app/tests
+      - run: pip install -r lambda/requirements.txt pytest && pytest lambda/tests
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform -chdir=${TF_WORKING_DIR} init -backend=false && terraform -chdir=${TF_WORKING_DIR} fmt -check -recursive && terraform -chdir=${TF_WORKING_DIR} validate
+
+  deploy:
+    needs: test
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy
+    runs-on: ubuntu-latest
+    environment: aws-dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: ./scripts/package-lambda.sh
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform -chdir=${TF_WORKING_DIR} init && terraform -chdir=${TF_WORKING_DIR} apply -auto-approve
+      - run: ./scripts/smoke-test.sh

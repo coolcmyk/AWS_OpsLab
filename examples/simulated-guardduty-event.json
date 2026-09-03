@@ -1,0 +1,13 @@
+{
+  "version": "0",
+  "id": "demo-event-001",
+  "source": "secureai.demo",
+  "detail-type": "GuardDuty Finding (Simulated)",
+  "detail": {
+    "id": "simulated-finding-001",
+    "title": "Simulated unusual API activity",
+    "description": "This is a replayed sample event. It is not a live security finding.",
+    "severity": "high",
+    "is_simulated": true
+  }
+}

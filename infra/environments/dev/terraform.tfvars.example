@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars. Do not commit real account-specific values.
+aws_region         = "ap-southeast-1"
+environment        = "dev"
+enable_nat_gateway = true # Needed for private EC2/ECR access; incurs cost.
+enable_guardduty   = false
+alert_email        = "you@example.com"
+tags = {
+  Owner = "your-name"
+}

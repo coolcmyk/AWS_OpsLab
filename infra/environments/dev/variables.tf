@@ -1,0 +1,10 @@
+variable "aws_region" { type = string, default = "ap-southeast-1" }
+variable "environment" { type = string, default = "dev" }
+variable "name" { type = string, default = "secureai-ops" }
+variable "vpc_cidr" { type = string, default = "10.42.0.0/16" }
+variable "allowed_cidr" { type = string, default = "0.0.0.0/0" }
+variable "enable_nat_gateway" { type = bool, default = true }
+variable "enable_guardduty" { type = bool, default = false }
+variable "alert_email" { type = string, default = "" }
+variable "app_image_tag" { type = string, default = "latest" }
+variable "tags" { type = map(string), default = {} }

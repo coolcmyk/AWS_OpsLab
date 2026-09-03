@@ -1,0 +1,1 @@
+Run scripts/package-lambda.sh before Terraform plan/apply. This placeholder only keeps the expected build directory in Git.

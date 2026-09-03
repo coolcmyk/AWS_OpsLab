@@ -16,3 +16,74 @@ Live GuardDuty findings are optional. Replayed findings must be visibly labelled
 - Provide structured logs, a CloudWatch dashboard, alarms, smoke tests, and an incident runbook.
 - Deploy via GitHub Actions using AWS OIDC, with no long-lived AWS credentials in GitHub.
 - Keep a CLI bootstrap/verification path to demonstrate AWS operational fluency.
+
+## Run locally
+
+Requirements: Python 3.12+ and Docker (optional).
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r app/requirements.txt
+cd app
+uvicorn main:app --reload --port 8080
+```
+
+Verify the service:
+
+```bash
+curl http://localhost:8080/health
+```
+
+The local app uses SQLite by default and creates `app/secureai.db`. Run tests from the repository root with:
+
+```bash
+pip install pytest httpx
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest app/tests lambda/tests
+```
+
+## Deploy the AWS lab
+
+Requirements: AWS CLI v2 configured with a non-root identity, Terraform 1.7+, Docker, Python 3.12+, and `jq`.
+
+> **Cost warning:** This stack can create billable RDS, ALB, NAT Gateway, CloudTrail, and related resources. Create a budget alert first and destroy the environment immediately after the demo.
+
+```bash
+aws configure sso
+aws sts get-caller-identity
+./scripts/bootstrap.sh
+cp infra/environments/dev/terraform.tfvars.example infra/environments/dev/terraform.tfvars
+# Edit infra/environments/dev/terraform.tfvars before continuing.
+./scripts/package-lambda.sh
+cd infra/environments/dev
+terraform init
+terraform plan
+terraform apply
+```
+
+Terraform creates the ECR repository before the application image exists. Build and push the image, then recreate the EC2 app host:
+
+```bash
+REPO=$(terraform output -raw ecr_repository_url)
+REGION=ap-southeast-1
+aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "${REPO%/*}"
+docker build -t secureai:latest ../../../app
+docker tag secureai:latest "$REPO:latest"
+docker push "$REPO:latest"
+terraform apply -replace=module.compute.aws_instance.app
+```
+
+Run the health and simulated-event smoke test from the repository root:
+
+```bash
+cd ../../..
+./scripts/smoke-test.sh
+```
+
+## Teardown
+
+```bash
+./scripts/destroy.sh
+```
+
+Confirm any manually enabled GuardDuty detector and budget alerts are also handled after teardown.
