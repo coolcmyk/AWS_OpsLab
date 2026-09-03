@@ -1,3 +1,5 @@
+### [Early Development Phase]
+
 SecureAI Ops Lab is a small, AWS-hosted security-operations platform that receives cloud-security findings, stores their evidence and audit trail, and produces an AI-assisted incident-triage brief. It is a portfolio project designed to demonstrate practical AWS infrastructure, security, observability, Docker, CI/CD, and responsible AI integration.
 
 The product deliberately uses a narrow, demoable workflow rather than attempting to be a full SIEM:
