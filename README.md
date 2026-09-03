@@ -1,4 +1,4 @@
-### [Early Development Phase]
+## [Early Development Phase]
 
 SecureAI Ops Lab is a small, AWS-hosted security-operations platform that receives cloud-security findings, stores their evidence and audit trail, and produces an AI-assisted incident-triage brief. It is a portfolio project designed to demonstrate practical AWS infrastructure, security, observability, Docker, CI/CD, and responsible AI integration.
 
@@ -8,7 +8,7 @@ The product deliberately uses a narrow, demoable workflow rather than attempting
 
 Live GuardDuty findings are optional. Replayed findings must be visibly labelled **simulated** in both the UI and documentation.
 
-## Goals
+## Feature
 
 - Provision a repeatable AWS environment with Terraform.
 - Demonstrate secure AWS networking, IAM least privilege, encrypted storage, and auditability.
