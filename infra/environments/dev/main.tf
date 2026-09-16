@@ -172,8 +172,9 @@ resource "aws_efs_file_system" "odoo" {
 }
 
 resource "aws_efs_mount_target" "odoo" {
+  count           = 2
   file_system_id  = aws_efs_file_system.odoo.id
-  subnet_id       = aws_subnet.public[0].id
+  subnet_id       = aws_subnet.public[count.index].id
   security_groups = [aws_security_group.efs.id]
 }
 
