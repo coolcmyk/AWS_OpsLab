@@ -54,6 +54,25 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
 - The current RAG provider is deterministic/mock. Bedrock, S3/SQS ingestion, pgvector, ECS, EFS, and Terraform deployment are subsequent milestones.
 - The assistant is advisory and read-only; verify cited sources before operational action.
 
-## AWS deployment
+## Disposable AWS demo deployment
 
-AWS infrastructure is being migrated from the previous lab to the Odoo ECS/RDS/EFS architecture in [PRD.md](PRD.md). Do not apply the legacy `infra/` configuration for this project.
+> **Cost and security warning:** this creates billable ALB, Fargate, RDS, EFS, Secrets Manager, and CloudWatch resources. It is a temporary, synthetic-data portfolio demo and currently uses HTTP because no domain was supplied for ACM validation. Destroy it immediately after use.
+
+Authenticate to AWS, then deploy:
+
+```bash
+aws login
+# If your AWS CLI uses IAM Identity Center:
+eval "$(aws configure export-credentials --format env)"
+./scripts/deploy-aws-demo.sh
+```
+
+The script applies the ECS/RDS/EFS stack; the temporary task bootstraps the public GitHub source onto EFS. It prints the temporary ALB URL. Sign in using the demo account above; do not share the local Odoo administrator account.
+
+Tear down all AWS resources after the demo:
+
+```bash
+./scripts/destroy-aws-demo.sh
+```
+
+See [docs/runbook.md](docs/runbook.md) for operational notes and [docs/architecture.md](docs/architecture.md) for the temporary architecture and its intentional limitations.

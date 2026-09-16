@@ -1,9 +1,9 @@
-# Copy to terraform.tfvars. Do not commit real account-specific values.
-aws_region         = "ap-southeast-1"
-environment        = "dev"
-enable_nat_gateway = true # Needed for private EC2/ECR access; incurs cost.
-enable_guardduty   = false
-alert_email        = "you@example.com"
+# Copy only for a disposable demo environment. Do not commit terraform.tfvars.
+aws_region     = "ap-southeast-1"
+name           = "odoo-intelligence"
+environment    = "dev"
+image_tag      = "latest"
+deploy_service = false # Terraform bootstrap creates ECR first; set true only after image push.
 tags = {
   Owner = "your-name"
 }

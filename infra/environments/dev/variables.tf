@@ -2,38 +2,38 @@ variable "aws_region" {
   type    = string
   default = "ap-southeast-1"
 }
+
+variable "name" {
+  type    = string
+  default = "odoo-intelligence"
+}
+
 variable "environment" {
   type    = string
   default = "dev"
 }
-variable "name" {
-  type    = string
-  default = "secureai-ops"
-}
+
 variable "vpc_cidr" {
   type    = string
-  default = "10.42.0.0/16"
+  default = "10.80.0.0/16"
 }
-variable "allowed_cidr" {
-  type    = string
-  default = "0.0.0.0/0"
-}
-variable "enable_nat_gateway" {
-  type    = bool
-  default = true
-}
-variable "enable_guardduty" {
-  type    = bool
-  default = false
-}
-variable "alert_email" {
-  type    = string
-  default = ""
-}
-variable "app_image_tag" {
+
+variable "image_tag" {
   type    = string
   default = "latest"
 }
+
+variable "deploy_service" {
+  description = "Set only after both ECR images have been pushed."
+  type        = bool
+  default     = false
+}
+
+variable "db_instance_class" {
+  type    = string
+  default = "db.t4g.micro"
+}
+
 variable "tags" {
   type    = map(string)
   default = {}
