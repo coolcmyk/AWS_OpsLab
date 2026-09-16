@@ -289,7 +289,7 @@ resource "aws_ecs_task_definition" "odoo" {
       image       = "alpine/git:2.47.2"
       essential   = false
       entryPoint  = ["/bin/sh", "-c"]
-      command     = ["rm -rf /mnt/shared/repository /mnt/shared/erp_ai_assistant && git clone --depth 1 https://github.com/coolcmyk/AWS_OpsLab.git /mnt/shared/repository && cp -R /mnt/shared/repository/odoo/addons/erp_ai_assistant /mnt/shared/erp_ai_assistant"]
+      command     = ["rm -rf /mnt/shared/repository /mnt/shared/erp_ai_assistant && git clone --depth 1 https://github.com/coolcmyk/AWS_OpsLab.git /mnt/shared/repository && cp -R /mnt/shared/repository/odoo/addons/erp_ai_assistant /mnt/shared/erp_ai_assistant && mkdir -p /mnt/shared/sessions /mnt/shared/filestore && chown -R 101:101 /mnt/shared"]
       mountPoints = [{ sourceVolume = "odoo-filestore", containerPath = "/mnt/shared", readOnly = false }]
       logConfiguration = {
         logDriver = "awslogs"
