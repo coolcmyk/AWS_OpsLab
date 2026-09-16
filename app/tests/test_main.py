@@ -1,4 +1,6 @@
 import os
+import uuid
+
 os.environ["DATABASE_URL"] = "sqlite:///./test_secureai.db"
 
 from fastapi.testclient import TestClient
@@ -14,7 +16,7 @@ def test_health():
 
 def test_create_and_get_incident():
     payload = {
-        "source_finding_id": "test-finding-001",
+        "source_finding_id": f"test-finding-{uuid.uuid4()}",
         "title": "Simulated public S3 bucket",
         "description": "Sample only",
         "severity": "high",

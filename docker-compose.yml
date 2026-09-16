@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  odoo:
+    build:
+      context: ./odoo
+    depends_on:
+      db:
+        condition: service_healthy
+      rag-service:
+        condition: service_healthy
+    environment:
+      HOST: db
+      PORT: 5432
+      USER: odoo
+      PASSWORD: odoo
+      RAG_SERVICE_URL: http://rag-service:8000
+      ODOO_DEMO_EMAIL: admin@gmail.com
+      ODOO_DEMO_PASSWORD: admin
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./odoo/addons:/mnt/extra-addons:ro
+    command: ["odoo", "-d", "odoo", "-i", "erp_ai_assistant", "--without-demo=all"]
+
+  rag-service:
+    build:
+      context: ./rag-service
+    environment:
+      AI_PROVIDER: mock
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
+  odoo-data:

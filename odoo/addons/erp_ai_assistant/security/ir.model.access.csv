@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_erp_ai_document_user,erp.ai.document user,model_erp_ai_document,base.group_user,1,1,1,0
+access_erp_ai_query_user,erp.ai.query user,model_erp_ai_query,base.group_user,1,1,1,0

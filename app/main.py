@@ -14,12 +14,14 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./secureai.db")
-# PostgreSQL uses JSONB; SQLite used for local development and unit tests.
+# Use psycopg v3 explicitly; SQLAlchemy otherwise defaults to the psycopg2 driver.
+SQLALCHEMY_DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+# PostgreSQL uses JSONB; SQLite is used for local development and unit tests.
 JSON_TYPE = JSONB if DATABASE_URL.startswith("postgresql") else Text
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"), format="%(message)s")
 logger = logging.getLogger("secureai")
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 

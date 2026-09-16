@@ -1,0 +1,94 @@
+<odoo>
+    <record id="view_erp_ai_document_tree" model="ir.ui.view">
+        <field name="name">erp.ai.document.tree</field>
+        <field name="model">erp.ai.document</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="attachment_id"/>
+                <field name="state" widget="badge"/>
+                <field name="owner_id"/>
+                <field name="indexed_at"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_erp_ai_document_form" model="ir.ui.view">
+        <field name="name">erp.ai.document.form</field>
+        <field name="model">erp.ai.document</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_mark_for_ingestion" type="object" string="Queue for ingestion" class="btn-primary" invisible="state == 'processing'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,processing,indexed,failed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="attachment_id" domain="[('type', '=', 'binary')]"/>
+                        <field name="owner_id" readonly="1"/>
+                        <field name="source_checksum" readonly="1"/>
+                        <field name="indexed_at" readonly="1"/>
+                        <field name="error_summary" readonly="1" invisible="not error_summary"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="action_erp_ai_document" model="ir.actions.act_window">
+        <field name="name">Approved documents</field>
+        <field name="res_model">erp.ai.document</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="view_erp_ai_query_tree" model="ir.ui.view">
+        <field name="name">erp.ai.query.tree</field>
+        <field name="model">erp.ai.query</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="create_date"/>
+                <field name="question"/>
+                <field name="state" widget="badge"/>
+                <field name="provider"/>
+                <field name="latency_ms"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_erp_ai_query_form" model="ir.ui.view">
+        <field name="name">erp.ai.query.form</field>
+        <field name="model">erp.ai.query</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_ask_assistant" type="object" string="Ask assistant" class="btn-primary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,complete,failed"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        AI-generated advisory — verify answers against the cited source before operational use.
+                    </div>
+                    <group>
+                        <field name="question" placeholder="Ask a question about your approved documents..."/>
+                        <field name="answer" readonly="1"/>
+                        <field name="citation_json" readonly="1" widget="text"/>
+                    </group>
+                    <group string="Processing metadata">
+                        <field name="provider" readonly="1"/>
+                        <field name="model" readonly="1"/>
+                        <field name="latency_ms" readonly="1"/>
+                        <field name="error_summary" readonly="1" invisible="not error_summary"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_erp_ai_query" model="ir.actions.act_window">
+        <field name="name">Ask assistant</field>
+        <field name="res_model">erp.ai.query</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_erp_ai_root" name="ERP AI Assistant" sequence="70"/>
+    <menuitem id="menu_erp_ai_query" name="Ask assistant" parent="menu_erp_ai_root" action="action_erp_ai_query" sequence="10"/>
+    <menuitem id="menu_erp_ai_document" name="Approved documents" parent="menu_erp_ai_root" action="action_erp_ai_document" sequence="20"/>
+</odoo>

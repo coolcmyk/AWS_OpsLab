@@ -1,0 +1,14 @@
+<odoo>
+    <record id="rule_erp_ai_document_owner" model="ir.rule">
+        <field name="name">ERP AI documents: own records only</field>
+        <field name="model_id" ref="model_erp_ai_document"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="domain_force">[('owner_id', '=', user.id)]</field>
+    </record>
+    <record id="rule_erp_ai_query_requester" model="ir.rule">
+        <field name="name">ERP AI queries: own records only</field>
+        <field name="model_id" ref="model_erp_ai_query"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="domain_force">[('requester_id', '=', user.id)]</field>
+    </record>
+</odoo>

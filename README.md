@@ -1,97 +1,59 @@
-## [Early Development Phase]
+# Odoo ERP Intelligence Hub
 
-Deployment Link (API only): http://secureai-ops-dev-alb-1896002309.ap-southeast-1.elb.amazonaws.com
+A portfolio project that deploys Odoo Community Edition and extends it with a cited, read-only AI assistant. The local development stack includes Odoo, PostgreSQL, a custom `erp_ai_assistant` addon, and a FastAPI mock RAG service.
 
-<img width="3469" height="853" alt="image" src="https://github.com/user-attachments/assets/988d681a-ed49-440f-88e2-382d462e8a45" />
+See [PRD.md](PRD.md) for the AWS target architecture and delivery scope.
 
-<img width="3840" height="1972" alt="image" src="https://github.com/user-attachments/assets/23c61168-2b74-481b-b385-51073ff2256c" />
+## Local development
 
-SecureAI Ops Lab is a small, AWS-hosted security-operations platform that receives cloud-security findings, stores their evidence and audit trail, and produces an AI-assisted incident-triage brief. It is a portfolio project designed to demonstrate practical AWS infrastructure, security, observability, Docker, CI/CD, and responsible AI integration.
+Requirements: Docker Engine with Docker Compose v2.
 
-The product deliberately uses a narrow, demoable workflow rather than attempting to be a full SIEM:
+```bash
+docker compose up --build
+```
 
-> A GuardDuty-style finding enters EventBridge → a Lambda validates and enriches it → the platform stores the incident and evidence → an operator views the incident, AI summary, and recommended next steps in a FastAPI dashboard/API.
+Open [http://localhost:8069](http://localhost:8069), select the local `odoo` database, then use the public demo account below. It is a deliberately restricted internal Odoo user with synthetic data only — it is **not** an Odoo administrator and must never be used outside a disposable demo environment.
 
-Live GuardDuty findings are optional. Replayed findings must be visibly labelled **simulated** in both the UI and documentation.
+| Login | Password |
+| --- | --- |
+| `admin@gmail.com` | `admin` |
 
-## Feature
+The initial local Odoo administrator remains `admin` / `admin`; change it immediately if you use the stack for anything other than local development. The RAG service health endpoint is available at:
 
-- Provision a repeatable AWS environment with Terraform.
-- Demonstrate secure AWS networking, IAM least privilege, encrypted storage, and auditability.
-- Run a Dockerized FastAPI service on a hardened EC2 instance behind an Application Load Balancer (ALB).
-- Persist incidents and audit metadata in PostgreSQL on Amazon RDS.
-- Route GuardDuty-style events through EventBridge to a Lambda-based AI enricher.
-- Provide structured logs, a CloudWatch dashboard, alarms, smoke tests, and an incident runbook.
-- Deploy via GitHub Actions using AWS OIDC, with no long-lived AWS credentials in GitHub.
-- Keep a CLI bootstrap/verification path to demonstrate AWS operational fluency.
+```bash
+curl -s http://localhost:8000/health | jq
+```
 
-## Run locally
+The Compose stack intentionally uses local-only credentials (`odoo` / `odoo`) and persistent Docker volumes. Never use those credentials outside local development.
 
-Requirements: Python 3.12+ and Docker (optional).
+Stop the local stack while keeping data:
+
+```bash
+docker compose down
+```
+
+Remove all local containers and database/filestore volumes:
+
+```bash
+docker compose down -v
+```
+
+## Tests
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r app/requirements.txt
-cd app
-uvicorn main:app --reload --port 8080
+pip install -r rag-service/requirements.txt pytest httpx
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
 ```
 
-Verify the service:
+## Security and data policy
 
-```bash
-curl http://localhost:8080/health
-```
+- Use Odoo Community Edition only; do not add Enterprise code or credentials.
+- Use synthetic ERP records and documents only.
+- The current RAG provider is deterministic/mock. Bedrock, S3/SQS ingestion, pgvector, ECS, EFS, and Terraform deployment are subsequent milestones.
+- The assistant is advisory and read-only; verify cited sources before operational action.
 
-The local app uses SQLite by default and creates `app/secureai.db`. Run tests from the repository root with:
+## AWS deployment
 
-```bash
-pip install pytest httpx
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest app/tests lambda/tests
-```
-
-## Deploy the AWS lab
-
-Requirements: AWS CLI v2 configured with a non-root identity, Terraform 1.7+, Docker, Python 3.12+, and `jq`.
-
-> **Cost warning:** This stack can create billable RDS, ALB, NAT Gateway, CloudTrail, and related resources. Create a budget alert first and destroy the environment immediately after the demo.
-
-```bash
-aws configure sso
-aws sts get-caller-identity
-./scripts/bootstrap.sh
-cp infra/environments/dev/terraform.tfvars.example infra/environments/dev/terraform.tfvars
-# Edit infra/environments/dev/terraform.tfvars before continuing.
-./scripts/package-lambda.sh
-cd infra/environments/dev
-terraform init
-terraform plan
-terraform apply
-```
-
-Terraform creates the ECR repository before the application image exists. Build and push the image, then recreate the EC2 app host:
-
-```bash
-REPO=$(terraform output -raw ecr_repository_url)
-REGION=ap-southeast-1
-aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "${REPO%/*}"
-docker build -t secureai:latest ../../../app
-docker tag secureai:latest "$REPO:latest"
-docker push "$REPO:latest"
-terraform apply -replace=module.compute.aws_instance.app
-```
-
-Run the health and simulated-event smoke test from the repository root:
-
-```bash
-cd ../../..
-./scripts/smoke-test.sh
-```
-
-## Teardown
-
-```bash
-./scripts/destroy.sh
-```
-
-Confirm any manually enabled GuardDuty detector and budget alerts are also handled after teardown.
+AWS infrastructure is being migrated from the previous lab to the Odoo ECS/RDS/EFS architecture in [PRD.md](PRD.md). Do not apply the legacy `infra/` configuration for this project.

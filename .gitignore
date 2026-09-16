@@ -3,7 +3,6 @@
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
-.terraform.lock.hcl
 __pycache__/
 .pytest_cache/
 *.pyc
@@ -11,3 +10,7 @@ __pycache__/
 .env
 lambda/.build/*
 !lambda/.build/.gitkeep
+infra/modules/events/lambda.zip
+.env
+odoo-data/
+postgres-data/
