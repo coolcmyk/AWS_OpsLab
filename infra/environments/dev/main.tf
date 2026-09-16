@@ -288,8 +288,17 @@ resource "aws_ecs_task_definition" "odoo" {
       name        = "source-bootstrap"
       image       = "alpine/git:2.47.2"
       essential   = false
-      command     = ["sh", "-c", "rm -rf /mnt/shared/repository /mnt/shared/erp_ai_assistant && git clone --depth 1 https://github.com/coolcmyk/AWS_OpsLab.git /mnt/shared/repository && cp -R /mnt/shared/repository/odoo/addons/erp_ai_assistant /mnt/shared/erp_ai_assistant"]
+      entryPoint  = ["/bin/sh", "-c"]
+      command     = ["rm -rf /mnt/shared/repository /mnt/shared/erp_ai_assistant && git clone --depth 1 https://github.com/coolcmyk/AWS_OpsLab.git /mnt/shared/repository && cp -R /mnt/shared/repository/odoo/addons/erp_ai_assistant /mnt/shared/erp_ai_assistant"]
       mountPoints = [{ sourceVolume = "odoo-filestore", containerPath = "/mnt/shared", readOnly = false }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.odoo.name
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "bootstrap"
+        }
+      }
     },
     {
       name             = "rag-service"
