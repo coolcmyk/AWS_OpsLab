@@ -178,6 +178,24 @@ resource "aws_efs_mount_target" "odoo" {
   security_groups = [aws_security_group.efs.id]
 }
 
+resource "aws_efs_access_point" "odoo" {
+  file_system_id = aws_efs_file_system.odoo.id
+
+  posix_user {
+    uid = 101
+    gid = 101
+  }
+
+  root_directory {
+    path = "/odoo"
+    creation_info {
+      owner_uid   = 101
+      owner_gid   = 101
+      permissions = "750"
+    }
+  }
+}
+
 resource "aws_cloudwatch_log_group" "odoo" {
   name              = "/ecs/${local.prefix}/odoo"
   retention_in_days = 7
@@ -280,6 +298,10 @@ resource "aws_ecs_task_definition" "odoo" {
     efs_volume_configuration {
       file_system_id     = aws_efs_file_system.odoo.id
       transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = aws_efs_access_point.odoo.id
+        iam             = "DISABLED"
+      }
     }
   }
 
@@ -289,7 +311,7 @@ resource "aws_ecs_task_definition" "odoo" {
       image       = "alpine/git:2.47.2"
       essential   = false
       entryPoint  = ["/bin/sh", "-c"]
-      command     = ["rm -rf /mnt/shared/repository /mnt/shared/erp_ai_assistant && git clone --depth 1 https://github.com/coolcmyk/AWS_OpsLab.git /mnt/shared/repository && cp -R /mnt/shared/repository/odoo/addons/erp_ai_assistant /mnt/shared/erp_ai_assistant && mkdir -p /mnt/shared/sessions /mnt/shared/filestore && chown -R 101:101 /mnt/shared"]
+      command     = ["rm -rf /mnt/shared/repository /mnt/shared/erp_ai_assistant && git clone --depth 1 https://github.com/coolcmyk/AWS_OpsLab.git /mnt/shared/repository && cp -R /mnt/shared/repository/odoo/addons/erp_ai_assistant /mnt/shared/erp_ai_assistant && mkdir -p /mnt/shared/sessions /mnt/shared/filestore"]
       mountPoints = [{ sourceVolume = "odoo-filestore", containerPath = "/mnt/shared", readOnly = false }]
       logConfiguration = {
         logDriver = "awslogs"
@@ -358,6 +380,7 @@ resource "aws_ecs_task_definition" "odoo" {
     aws_iam_role_policy.execution_secrets,
     aws_secretsmanager_secret_version.database,
     aws_efs_mount_target.odoo,
+    aws_efs_access_point.odoo,
   ]
 }
 
