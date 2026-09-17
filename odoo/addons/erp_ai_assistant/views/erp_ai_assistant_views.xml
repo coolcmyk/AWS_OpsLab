@@ -84,12 +84,17 @@
         </field>
     </record>
     <record id="action_erp_ai_query" model="ir.actions.act_window">
-        <field name="name">Ask assistant</field>
+        <field name="name">Query history</field>
         <field name="res_model">erp.ai.query</field>
         <field name="view_mode">tree,form</field>
     </record>
+    <record id="action_erp_ai_chat" model="ir.actions.client">
+        <field name="name">ERP AI Assistant</field>
+        <field name="tag">erp_ai_assistant.chat</field>
+    </record>
 
     <menuitem id="menu_erp_ai_root" name="ERP AI Assistant" sequence="70"/>
-    <menuitem id="menu_erp_ai_query" name="Ask assistant" parent="menu_erp_ai_root" action="action_erp_ai_query" sequence="10"/>
-    <menuitem id="menu_erp_ai_document" name="Approved documents" parent="menu_erp_ai_root" action="action_erp_ai_document" sequence="20"/>
+    <menuitem id="menu_erp_ai_chat" name="Chat" parent="menu_erp_ai_root" action="action_erp_ai_chat" sequence="10"/>
+    <menuitem id="menu_erp_ai_query" name="Query history" parent="menu_erp_ai_root" action="action_erp_ai_query" sequence="20"/>
+    <menuitem id="menu_erp_ai_document" name="Approved documents" parent="menu_erp_ai_root" action="action_erp_ai_document" sequence="30"/>
 </odoo>

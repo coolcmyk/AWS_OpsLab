@@ -14,4 +14,11 @@
     "application": True,
     "installable": True,
     "post_init_hook": "post_init_hook",
+    "assets": {
+        "web.assets_backend": [
+            "erp_ai_assistant/static/src/js/chat_action.js",
+            "erp_ai_assistant/static/src/xml/chat_action.xml",
+            "erp_ai_assistant/static/src/scss/chat_action.scss",
+        ],
+    },
 }

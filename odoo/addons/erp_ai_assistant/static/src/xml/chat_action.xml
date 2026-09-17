@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="erp_ai_assistant.ChatAction" owl="1">
+        <div class="o_erp_ai_chat container-fluid h-100 p-4">
+            <div class="o_erp_ai_chat_header mb-3">
+                <h2 class="mb-1">ERP AI Assistant</h2>
+                <p class="text-muted mb-0">Read-only analysis of your approved, indexed synthetic documents.</p>
+            </div>
+            <div class="alert alert-warning" role="alert">
+                <strong>AI-generated advisory</strong> — verify every answer against its cited source before operational use.
+            </div>
+            <div class="o_erp_ai_chat_messages card mb-3 p-3">
+                <t t-if="!state.messages.length">
+                    <div class="text-muted text-center my-auto">Ask a question about an approved TXT or CSV document to begin.</div>
+                </t>
+                <t t-foreach="state.messages" t-as="message" t-key="message_index">
+                    <div t-attf-class="o_erp_ai_message o_erp_ai_message_{{ message.role }} mb-3">
+                        <div class="o_erp_ai_message_label"><t t-esc="message.role === 'user' ? 'You' : (message.role === 'assistant' ? 'Assistant' : 'Error')"/></div>
+                        <div class="o_erp_ai_message_body"><t t-esc="message.text"/></div>
+                        <t t-if="message.citations &amp;&amp; message.citations.length">
+                            <div class="o_erp_ai_citations mt-2">
+                                <strong>Sources</strong>
+                                <ul class="mb-0">
+                                    <t t-foreach="message.citations" t-as="citation" t-key="citation_index">
+                                        <li><t t-esc="citation.title"/> — <t t-esc="citation.reference"/></li>
+                                    </t>
+                                </ul>
+                            </div>
+                        </t>
+                        <t t-if="message.provider">
+                            <small class="text-muted d-block mt-2"><t t-esc="message.provider"/> / <t t-esc="message.model"/> · <t t-esc="message.latency"/> ms</small>
+                        </t>
+                    </div>
+                </t>
+                <t t-if="state.loading">
+                    <div class="o_erp_ai_typing text-muted">Assistant is analyzing authorized evidence…</div>
+                </t>
+            </div>
+            <div class="card p-3">
+                <label class="form-label" for="erp-ai-question">Question</label>
+                <textarea id="erp-ai-question" class="form-control" rows="3" placeholder="For example: What payment terms are stated in the supplier agreement?" t-att-value="state.question" t-on-input="updateQuestion" t-on-keydown="onKeydown"/>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <small class="text-muted">Ctrl/Cmd + Enter to send</small>
+                    <button class="btn btn-primary" t-on-click="send" t-att-disabled="state.loading || !state.question.trim()">
+                        <t t-if="state.loading">Thinking…</t><t t-else="">Send</t>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
