@@ -252,7 +252,7 @@ resource "aws_iam_role_policy" "task_bedrock" {
       Effect = "Allow"
       Action = ["bedrock:InvokeModel"]
       Resource = [
-        "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.nova-lite-v1:0",
+        "arn:aws:bedrock:ap-*::foundation-model/amazon.nova-lite-v1:0",
         "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:inference-profile/apac.amazon.nova-lite-v1:0"
       ]
     }]
