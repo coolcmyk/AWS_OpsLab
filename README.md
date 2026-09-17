@@ -2,6 +2,8 @@
 
 A portfolio project that deploys Odoo Community Edition and extends it with a cited, read-only AI assistant. The local development stack includes Odoo, PostgreSQL, a custom `erp_ai_assistant` addon, and a FastAPI mock RAG service.
 
+Open [the ai assistant dashboard](http://odoo-intelligence-dev-alb-1400469304.ap-southeast-1.elb.amazonaws.com/web#action=441&cids=1&menu_id=283) to start chatting
+
 See [PRD.md](PRD.md) for the AWS target architecture and delivery scope.
 
 ## Local development
