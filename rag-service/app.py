@@ -44,7 +44,7 @@ def bedrock_answer(question: str, documents: list[ScopedDocument]) -> tuple[str,
         import boto3
         from botocore.exceptions import BotoCoreError, ClientError
 
-        model_id = os.getenv("BEDROCK_MODEL_ID", "amazon.nova-lite-v1:0")
+        model_id = os.getenv("BEDROCK_MODEL_ID", "apac.amazon.nova-lite-v1:0")
         region = os.getenv("BEDROCK_REGION", os.getenv("AWS_REGION", "ap-southeast-1"))
         evidence = "\n\n".join(
             f"[Document {document.id}: {document.title}]\n{document.excerpt}" for document in documents
@@ -73,7 +73,7 @@ def health():
         "status": "ok",
         "service": "erp-rag-service",
         "provider": os.getenv("AI_PROVIDER", "mock"),
-        "model": os.getenv("BEDROCK_MODEL_ID", "deterministic-mvp"),
+        "model": os.getenv("BEDROCK_MODEL_ID", "apac.amazon.nova-lite-v1:0"),
     }
 
 

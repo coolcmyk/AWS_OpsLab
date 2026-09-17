@@ -2,6 +2,8 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+data "aws_caller_identity" "current" {}
+
 locals {
   prefix = "${var.name}-${var.environment}"
   azs    = slice(data.aws_availability_zones.available.names, 0, 2)
@@ -247,9 +249,12 @@ resource "aws_iam_role_policy" "task_bedrock" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect   = "Allow"
-      Action   = ["bedrock:InvokeModel"]
-      Resource = "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.nova-lite-v1:0"
+      Effect = "Allow"
+      Action = ["bedrock:InvokeModel"]
+      Resource = [
+        "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.nova-lite-v1:0",
+        "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:inference-profile/apac.amazon.nova-lite-v1:0"
+      ]
     }]
   })
 }
@@ -347,7 +352,7 @@ resource "aws_ecs_task_definition" "odoo" {
       environment = [
         { name = "AI_PROVIDER", value = "bedrock" },
         { name = "BEDROCK_REGION", value = var.aws_region },
-        { name = "BEDROCK_MODEL_ID", value = "amazon.nova-lite-v1:0" }
+        { name = "BEDROCK_MODEL_ID", value = "apac.amazon.nova-lite-v1:0" }
       ]
       logConfiguration = {
         logDriver = "awslogs"
