@@ -6,6 +6,16 @@ Open [the ai assistant dashboard](http://odoo-intelligence-dev-alb-1400469304.ap
 
 See [PRD.md](PRD.md) for the AWS target architecture and delivery scope.
 
+## Demo screenshots
+
+### In-Odoo ERP AI chat
+
+![ERP AI Assistant chat with Bedrock answer and citations](docs/screenshots/ss-1.png)
+
+### AWS-hosted Odoo demo
+
+![AWS-hosted Odoo ERP Intelligence Hub](docs/screenshots/ss-2.png)
+
 ## Local development
 
 Requirements: Docker Engine with Docker Compose v2.
