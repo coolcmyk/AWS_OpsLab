@@ -4,6 +4,10 @@ A portfolio project that deploys Odoo Community Edition and extends it with a ci
 
 Open [the ai assistant dashboard](http://odoo-intelligence-dev-alb-1400469304.ap-southeast-1.elb.amazonaws.com/web#action=441&cids=1&menu_id=283) to start chatting
 
+| Login | Password |
+| --- | --- |
+| `admin@gmail.com` | `admin` |
+
 See [PRD.md](PRD.md) for the AWS target architecture and delivery scope.
 
 ## Demo screenshots
@@ -23,12 +27,6 @@ Requirements: Docker Engine with Docker Compose v2.
 ```bash
 docker compose up --build
 ```
-
-Open [http://localhost:8069](http://localhost:8069), select the local `odoo` database, then use the public demo account below. It is a deliberately restricted internal Odoo user with synthetic data only — it is **not** an Odoo administrator and must never be used outside a disposable demo environment.
-
-| Login | Password |
-| --- | --- |
-| `admin@gmail.com` | `admin` |
 
 The initial local Odoo administrator remains `admin` / `admin`; change it immediately if you use the stack for anything other than local development. The RAG service health endpoint is available at:
 
