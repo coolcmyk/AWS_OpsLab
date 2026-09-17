@@ -32,8 +32,7 @@ class ErpAiQuery(models.Model):
         documents = self.env["erp.ai.document"].search([
             ("owner_id", "=", self.requester_id.id),
             ("state", "=", "indexed"),
-            ("source_excerpt", "!=", False),
-        ], limit=5)
+        ]).filtered(lambda document: bool(document.source_excerpt))[:5]
         payload = json.dumps({
             "question": self.question,
             "requester_id": str(self.requester_id.id),

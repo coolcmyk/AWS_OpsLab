@@ -47,7 +47,7 @@ export class ErpAiChatAction extends Component {
         } catch (error) {
             this.state.messages.push({
                 role: "error",
-                text: error.message || "The assistant could not process this request.",
+                text: error.data?.message || error.message || "The assistant could not process this request.",
             });
             this.notification.add("The assistant request could not be completed.", { type: "danger" });
         } finally {
