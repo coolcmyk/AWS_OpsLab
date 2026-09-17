@@ -29,10 +29,19 @@ class ErpAiQuery(models.Model):
         if not self.question or not self.question.strip():
             raise UserError("Enter a question before asking the assistant.")
 
+        documents = self.env["erp.ai.document"].search([
+            ("owner_id", "=", self.requester_id.id),
+            ("state", "=", "indexed"),
+            ("source_excerpt", "!=", False),
+        ], limit=5)
         payload = json.dumps({
             "question": self.question,
             "requester_id": str(self.requester_id.id),
-            "allowed_document_ids": self.env["erp.ai.document"].search([("owner_id", "=", self.requester_id.id), ("state", "=", "indexed")]).ids,
+            "allowed_documents": [{
+                "id": document.id,
+                "title": document.name,
+                "excerpt": document.source_excerpt,
+            } for document in documents],
             "question_hash": hashlib.sha256(self.question.encode()).hexdigest(),
         }).encode()
         url = os.getenv("RAG_SERVICE_URL", "http://rag-service:8000").rstrip("/") + "/v1/query"

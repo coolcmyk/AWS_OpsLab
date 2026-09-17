@@ -241,6 +241,19 @@ resource "aws_iam_role" "task" {
   assume_role_policy = aws_iam_role.execution.assume_role_policy
 }
 
+resource "aws_iam_role_policy" "task_bedrock" {
+  name = "invoke-nova-lite"
+  role = aws_iam_role.task.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["bedrock:InvokeModel"]
+      Resource = "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.nova-lite-v1:0"
+    }]
+  })
+}
+
 resource "aws_ecs_cluster" "this" {
   name = local.prefix
   setting {
@@ -331,7 +344,11 @@ resource "aws_ecs_task_definition" "odoo" {
       command          = ["sh", "-c", "pip install --no-cache-dir -r requirements.txt && uvicorn app:app --host 0.0.0.0 --port 8000"]
       portMappings     = [{ containerPort = 8000, protocol = "tcp" }]
       mountPoints      = [{ sourceVolume = "odoo-filestore", containerPath = "/mnt/shared", readOnly = true }]
-      environment      = [{ name = "AI_PROVIDER", value = "mock" }]
+      environment = [
+        { name = "AI_PROVIDER", value = "bedrock" },
+        { name = "BEDROCK_REGION", value = var.aws_region },
+        { name = "BEDROCK_MODEL_ID", value = "amazon.nova-lite-v1:0" }
+      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -378,6 +395,7 @@ resource "aws_ecs_task_definition" "odoo" {
   depends_on = [
     aws_iam_role_policy_attachment.execution,
     aws_iam_role_policy.execution_secrets,
+    aws_iam_role_policy.task_bedrock,
     aws_secretsmanager_secret_version.database,
     aws_efs_mount_target.odoo,
     aws_efs_access_point.odoo,

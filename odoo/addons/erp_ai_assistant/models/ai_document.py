@@ -1,3 +1,5 @@
+import base64
+
 from odoo import api, fields, models
 
 
@@ -17,6 +19,7 @@ class ErpAiDocument(models.Model):
         tracking=True,
     )
     source_checksum = fields.Char(readonly=True)
+    source_excerpt = fields.Text(readonly=True)
     error_summary = fields.Char(readonly=True)
     indexed_at = fields.Datetime(readonly=True)
 
@@ -27,7 +30,26 @@ class ErpAiDocument(models.Model):
             record.source_checksum = record.attachment_id.checksum
         return records
 
+    def _text_excerpt(self):
+        self.ensure_one()
+        if self.attachment_id.mimetype not in ("text/plain", "text/csv"):
+            return False
+        try:
+            raw = base64.b64decode(self.attachment_id.datas or b"")
+            return raw.decode("utf-8", errors="replace")[:4000]
+        except (ValueError, TypeError):
+            return False
+
     def action_mark_for_ingestion(self):
-        """The AWS S3/SQS handoff is added by the ingestion integration milestone."""
-        self.write({"state": "pending", "error_summary": False})
+        """Local demo indexing; production uses the S3/SQS/Lambda workflow."""
+        for record in self:
+            excerpt = record._text_excerpt()
+            if excerpt:
+                record.write({"state": "indexed", "source_excerpt": excerpt, "error_summary": False})
+            else:
+                record.write({
+                    "state": "failed",
+                    "source_excerpt": False,
+                    "error_summary": "The local demo accepts UTF-8 TXT or CSV attachments only.",
+                })
         return True

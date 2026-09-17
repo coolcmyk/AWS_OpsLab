@@ -27,6 +27,7 @@
                         <field name="attachment_id" domain="[('type', '=', 'binary')]"/>
                         <field name="owner_id" readonly="1"/>
                         <field name="source_checksum" readonly="1"/>
+                        <field name="source_excerpt" readonly="1" widget="text"/>
                         <field name="indexed_at" readonly="1"/>
                         <field name="error_summary" readonly="1" invisible="not error_summary"/>
                     </group>
